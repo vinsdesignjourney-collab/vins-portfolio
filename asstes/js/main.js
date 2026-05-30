@@ -1,3 +1,4 @@
+// Section ojt
 let section_obj = [
   {
     icon: "fa-solid fa-user",
@@ -43,41 +44,40 @@ let section_obj = [
   },
 ];
 
-// contact bar onject
+// Contact ojt
 let contact_obj = [
   {
     img: "asstes/images/linkedin.png",
-    link: "",
+    link: "#",
     popup: "Linked-In",
   },
   {
     img: "asstes/images/notes.png",
-    link: "",
+    link: "#",
     popup: "Linked-In",
   },
   {
     img: "asstes/images/profile.png",
-    link: "",
+    link: "#",
     popup: "Linked-In",
   },
   {
     img: "asstes/images/instagram.png",
-    link: "",
+    link: "#",
     popup: "Linked-In",
   },
   {
     img: "asstes/images/dribbble.png",
-    link: "",
+    link: "#",
     popup: "Linked-In",
   },
   {
     img: "asstes/images/behance.png",
-    link: "",
+    link: "#",
     popup: "Linked-In",
   },
 ];
 
-// icons floation icons section
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("boxes-container");
 
@@ -90,19 +90,127 @@ document.addEventListener("DOMContentLoaded", () => {
     { top: "top-[40%]", side: "right-[14%]" },
   ];
 
-  // Loop through your objects and render them
   section_obj.forEach((section, index) => {
     if (index < positions.length) {
       const pos = positions[index];
 
+      const wrapper = document.createElement("div");
+      wrapper.className = `absolute ${pos.top} ${pos.side} flex flex-col items-center gap-1.5 w-16 md:w-20 group`;
+
       const box = document.createElement("div");
+      box.className = `w-12 h-12 md:w-16 md:h-16 bg-[#E0E0E0]/80 rounded-xl shadow-md backdrop-blur-xs flex items-center justify-center cursor-pointer transition-transform group-hover:scale-110`;
 
-      box.className = `absolute ${pos.top} ${pos.side} w-12 h-12 md:w-16 md:h-16 bg-[#E0E0E0]/80 rounded-xl shadow-md backdrop-blur-xs flex items-center justify-center cursor-pointer transition-transform hover:scale-110`;
+      const box_title = document.createElement("p");
+      box_title.innerText = section.title;
+      box_title.className =
+        `text-[11px] italic md:text-xs text-[#000] font-medium text-center max-w-full select-none pointer-events-none break-words leading-tight`;
 
-      box.setAttribute("title", section.title);
+      box.addEventListener("click", () => {
+        const tempDiv = document.createElement("div");
 
+        tempDiv.innerHTML = `
+        <div id="modal" class="fixed inset-0 z-50 transition-opacity duration-200 ease-in-out">
+          <div id="modalOverlay" class="absolute inset-0 bg-black/40"></div>
+
+          <div
+            id="modalBox"
+            class="absolute bg-white rounded-bl-2xl rounded-br-2xl shadow-2xl max-w-md w-full border-t-5 border-black/70"
+            style="top: 50%; left: 50%; transform: translate(-50%, -50%)"
+          >
+            <div
+              id="modalHeader"
+              class="flex items-center justify-between p-4 bg-gray-50 rounded-t-xl border-b border-gray-200 cursor-move select-none"
+            >
+              <div class="flex items-center space-x-2">
+                <div class="flex justify-between gap-1.5 mr-2">
+                  <span class="closeModalAction w-3 h-3 rounded-full bg-red-500 cursor-pointer inline-block hover:opacity-80"></span>
+                  <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                  <span class="closeModalAction w-3 h-3 rounded-full bg-green-500 inline-block cursor-pointer"></span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800">
+                  ${section.title}
+                </h3>
+              </div>
+            </div>
+
+            <div class="p-6">
+              <p class="text-sm text-gray-600 font-serif">
+                ${section.content}
+              </p>
+            </div>
+          </div>
+        </div>
+      `;
+
+        const modalInstance = tempDiv.firstElementChild;
+        document.body.appendChild(modalInstance);
+
+        const modalBox = modalInstance.querySelector("#modalBox");
+        const modalHeader = modalInstance.querySelector("#modalHeader");
+        const overlay = modalInstance.querySelector("#modalOverlay");
+        const closeActions =
+          modalInstance.querySelectorAll(".closeModalAction");
+
+        function destroyModal() {
+          modalInstance.classList.add("opacity-0");
+          setTimeout(() => {
+            modalInstance.remove();
+          }, 200);
+        }
+
+        overlay.addEventListener("click", destroyModal);
+        closeActions.forEach((btn) =>
+          btn.addEventListener("click", destroyModal),
+        );
+
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        modalHeader.addEventListener("mousedown", (e) => {
+          if (e.target.classList.contains("closeModalAction")) return;
+
+          isDragging = true;
+          const rect = modalBox.getBoundingClientRect();
+          offsetX = e.clientX - rect.left;
+          offsetY = e.clientY - rect.top;
+
+          modalBox.style.transform = "none";
+          modalBox.style.left = `${rect.left}px`;
+          modalBox.style.top = `${rect.top}px`;
+        });
+
+        const handleMouseMove = (e) => {
+          if (!isDragging) return;
+
+          let newX = e.clientX - offsetX;
+          let newY = e.clientY - offsetY;
+
+          const minX = 0;
+          const minY = 0;
+          const maxX = window.innerWidth - modalBox.offsetWidth;
+          const maxY = window.innerHeight - modalBox.offsetHeight;
+
+          if (newX < minX) newX = minX;
+          if (newY < minY) newY = minY;
+          if (newX > maxX) newX = maxX;
+          if (newY > maxY) newY = maxY;
+
+          modalBox.style.left = `${newX}px`;
+          modalBox.style.top = `${newY}px`;
+        };
+
+        const handleMouseUp = () => {
+          isDragging = false;
+          document.removeEventListener("mousemove", handleMouseMove);
+          document.removeEventListener("mouseup", handleMouseUp);
+        };
+
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
+      });
+
+      // Icon parsing structure
       const iconEl = document.createElement("i");
-
       const iconClasses = [
         ...section.icon.split(" "),
         ...section.color.split(" "),
@@ -111,21 +219,27 @@ document.addEventListener("DOMContentLoaded", () => {
       ];
       iconEl.classList.add(...iconClasses);
 
+      // Assemble everything
       box.appendChild(iconEl);
-      container.appendChild(box);
+      wrapper.appendChild(box);
+      wrapper.appendChild(box_title);
+
+      if (container) {
+        container.appendChild(wrapper);
+      }
     }
   });
-});
 
-// contact js
-
-document.addEventListener("DOMContentLoaded", () => {
   const contact = document.getElementById("contact_section");
-  let html = "";
-  contact_obj.map((item, index) => {
-    html += `<div key=${index} class='hover:-translate-y-2'>
-        <img src=${item.img} alt=${item.popup} class='h-10' />
-        </div>`;
-  });
-  contact.innerHTML = html;
+  if (contact) {
+    let html = "";
+    contact_obj.forEach((item, index) => {
+      html += `<div key="${index}" class='hover:-translate-y-2'>
+      <a href="${item.link}">
+          <img src="${item.img}" alt="${item.popup}" class='h-10' />
+          </a>
+          </div>`;
+    });
+    contact.innerHTML = html;
+  }
 });

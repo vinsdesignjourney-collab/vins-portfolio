@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Draggable Tailwind Modal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body
+    class="bg-gray-100 flex items-center justify-center min-h-screen select-none"
+  >
+    <button
+      id="openModalBtn"
+      class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg shadow-md transition duration-200 cursor-pointer"
+    >
+      Open Draggable Modal
+    </button>
+
+    <div
+      id="modal"
+      class="fixed inset-0 z-50 invisible opacity-0 transition-opacity duration-200 ease-in-out"
+    >
+      <div id="modalOverlay" class="absolute inset-0 bg-black/40"></div>
+
+      <div
+        id="modalBox"
+        class="absolute bg-white rounded-bl-2xl rounded-br-2xl shadow-2xl max-w-md w-full border-t-5 border-black/70"
+        style="top: 50%; left: 50%; transform: translate(-50%, -50%)"
+      >
+        <div
+          id="modalHeader"
+          class="flex items-center justify-between p-4 bg-gray-50 rounded-t-xl border-b border-gray-200 cursor-move select-none"
+        >
+          <div class="flex items-center space-x-2">
+            <div class="flex justify-between gap-1.5 mr-2">
+              <span
+                class="closeModalX w-3 h-3 rounded-full bg-red-500 cursor-pointer inline-block hover:opacity-80"
+              ></span>
+              <span
+                class="w-3 h-3 rounded-full bg-yellow-500 inline-block"
+              ></span>
+              <span
+                class="closeModalX w-3 h-3 rounded-full bg-green-500 inline-block cursor-pointer"
+              ></span>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800">
+              Draggable Window
+            </h3>
+          </div>
+        </div>
+
+        <div class="p-6">
+          <p class="text-sm text-gray-600">
+            Click and hold the **header bar** at the top to drag this modal
+            anywhere around your user interface.
+          </p>
+        </div>
+
+        <div
+          class="p-4 bg-gray-50 rounded-b-xl flex justify-end space-x-3 border-t border-gray-100"
+        >
+          <button
+            id="closeModalBtn"
+            class="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg transition cursor-pointer"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const modal = document.getElementById("modal");
+      const modalBox = document.getElementById("modalBox");
+      const modalHeader = document.getElementById("modalHeader");
+
+      const openBtn = document.getElementById("openModalBtn");
+      const closeX = document.querySelectorAll(".closeModalX");
+      const closeBtn = document.getElementById("closeModalBtn");
+      const overlay = document.getElementById("modalOverlay");
+
+      // --- Toggle Modal Visibility ---
+      function openModal() {
+        modal.classList.remove("invisible", "opacity-0");
+        // Reset position to center whenever opened
+        modalBox.style.top = "50%";
+        modalBox.style.left = "50%";
+        modalBox.style.transform = "translate(-50%, -50%)";
+      }
+
+      function closeModal() {
+        modal.classList.add("invisible", "opacity-0");
+      }
+
+      // --- Event Listeners ---
+      openBtn.addEventListener("click", openModal);
+      closeBtn.addEventListener("click", closeModal);
+      overlay.addEventListener("click", closeModal);
+
+      // FIXED: Use forEach to loop through elements found by querySelectorAll
+      closeX.forEach((btn) => {
+        btn.addEventListener("click", closeModal);
+      });
+
+      // --- Dragging Logic ---
+      let isDragging = false;
+      let offsetX, offsetY;
+
+      modalHeader.addEventListener("mousedown", (e) => {
+        // Prevent dragging if clicking a close action inside the header
+        if (e.target.classList.contains("closeModalX")) return;
+
+        isDragging = true;
+
+        const rect = modalBox.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+
+        modalBox.style.transform = "none";
+        modalBox.style.left = `${rect.left}px`;
+        modalBox.style.top = `${rect.top}px`;
+      });
+
+      document.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+
+        let newX = e.clientX - offsetX;
+        let newY = e.clientY - offsetY;
+
+        const minX = 0;
+        const minY = 0;
+        const maxX = window.innerWidth - modalBox.offsetWidth;
+        const maxY = window.innerHeight - modalBox.offsetHeight;
+
+        if (newX < minX) newX = minX;
+        if (newY < minY) newY = minY;
+        if (newX > maxX) newX = maxX;
+        if (newY > maxY) newY = maxY;
+
+        modalBox.style.left = `${newX}px`;
+        modalBox.style.top = `${newY}px`;
+      });
+
+      document.addEventListener("mouseup", () => {
+        isDragging = false;
+      });
+    </script>
+  </body>
+</html>
